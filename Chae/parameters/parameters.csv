@@ -1,0 +1,12 @@
+﻿Parameters,min,max,Scaling,ver2min,ver2max,ver3,Note
+K_TF,0.1,1000000,Log,1,100,,nM
+k_TFd,0.1,10,Log,0.1,3000,,/Hr
+k_dlt,0.2079,2.079,Lin,,,,/Hr
+a0,90,500,Lin,,,100,/Hr
+a1,50,300,Lin,,,100,/Hr
+b0,10,100,Lin,,,,/Hr
+rc,0,5,Lin,,,,/Hr,
+K,0.1,1000000,Log,2,20000,,nM
+k_d,0.1,10,Log,0.1,3000,2000,/Hr
+V,0.1,1,Lin,,,,/nM
+nu,1,1,Fix,,,,Scaling: Log or Lin or Fix
