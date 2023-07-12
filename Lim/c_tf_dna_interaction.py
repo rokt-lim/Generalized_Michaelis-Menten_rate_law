@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-C. TF-DNA interaction, GI-ZTL interaction
+C. TF-DNA interaction
 
 A_bar = A_bar_max*(1.0 - 0.5*alpha_A_bar*(1.0 + cos(2.0*pi/k_delta/T*tau)))
 A_bar = A_bar_max - 0.5*alpha_A_bar*A_bar_max - 0.5*alpha_A_bar*A_bar_max*cos(2.0*pi/k_delta/T*tau)
@@ -122,12 +122,15 @@ def func_C_TF_gamma(A_bar_max,alpha_A_bar,KV_inv,T_coeff,phi_A,tau_list,tau_dela
     df_TF_gamma['tau_gamma'] = 0.0
     for idx in df_TF_gamma.index.values:
         tau_d = df_TF_gamma.loc[idx,'tau'] - df_TF_gamma.loc[idx,'tau_delay']
-        A_bar_tau_d = func_toy_X(A_bar_max,alpha_A_bar,T_coeff,phi_A,tau_d)
-        #-- C_TF_QSSA = A_bar*KV_inv*(1.0 + A_bar)
+        if tau_d >= 0.0:
+            A_bar_tau_d = func_toy_X(A_bar_max,alpha_A_bar,T_coeff,phi_A,tau_d)
+        else:
+            A_bar_tau_d = func_toy_X(A_bar_max,alpha_A_bar,T_coeff,phi_A,0.0)
+        #
+        #-- C_TF_tQSSA = A_bar*KV_inv*(1.0 + A_bar)
         tmp = A_bar_tau_d*KV_inv/(1.0 + A_bar_tau_d)
         df_TF_gamma.loc[idx,'tau_gamma'] = tau_d
-        A_bar_tau = func_toy_X(A_bar_max,alpha_A_bar,T_coeff,phi_A,df_TF_gamma.loc[idx,'tau'])
-        df_TF_gamma.loc[idx,'C_TF_gamma'] = numpy.amin([tmp,A_bar_tau,KV_inv])
+        df_TF_gamma.loc[idx,'C_TF_gamma'] = tmp
     #
     #-- return
     return df_TF_gamma['tau_gamma'].values,df_TF_gamma['C_TF_gamma'].values
@@ -269,7 +272,8 @@ def solve_TF_DNA_interaction(t_start,t_end,dt,T_period,A_max,alpha_A,K_M,V,k_del
     df['dd_C_tTF'] = func_dd_C_tTF(df['C_bar_QSSA'].values,df['tau_delay'].values,df['A_bar'].values,df['mu_A'].values,df['d_mu_A'].values)
     #-- epsilon values
     df['epsilon_TF'] = func_epsilon_TF(df['A_bar'].values,df['tau_delay'].values,df['mu_A'].values)
-    df['epsilon_TF_gamma'] = 0.5*df['tau_delay'].values*df['tau_delay'].values*df['dd_C_tTF'].values
+    tmp_eval = numpy.absolute(0.5*df['tau_delay'].values*df['tau_delay'].values*df['dd_C_tTF'].values)
+    df['epsilon_TF_gamma'] = tmp_eval/df['C_bar_gamma'].values
     df['epsilon_TF_Q'] = func_epsilon_TF_Q(df['C_bar_QSSA'].values,df['d_C_tTF'].values,df['dd_C_tTF'].values,df['tau_delay'].values)
     #-- save columns
     save_cols = ['tau','A_bar','B_bar','C_bar','C_bar_QSSA','C_bar_gamma','tau_gamma',\
@@ -390,6 +394,6 @@ def main_C_TF_DNA_interaction_irregular():
 ####-- Main script
 
 main_C_TF_DNA_interaction()
-# main_C_TF_DNA_interaction_irregular()
+main_C_TF_DNA_interaction_irregular()
 
 ####-- END ---####
